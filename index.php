@@ -29,7 +29,7 @@ $OUTPUT->flashMessages();
 
 <script src="../openochem/js/kekule_libs/dist/kekule.js?modules=widget,chemWidget,spectroscopy,io"></script>
 
-
+<script src="download.js"></script>
 
 <link rel="stylesheet" type="text/css" href="../openochem/js/kekule_libs/dist/themes/default/kekule.css" />
 
@@ -98,10 +98,20 @@ chemComposer.setCommonToolButtons([
 		// use your own Action class here to do some concrete work
 		"actionClass": Class.create(Kekule.Editor.ActionOnComposerAdv, {}),
 		"hint": "Custom action 1",
-		'#execute': function(){ getimage()},
+//		'#execute': function(){ getimage()},
+		'#execute': function(){ exportCroppedImage()},
 		'htmlClass': 'K-Res-Button-YesOk',
 		'cssText': 'width:auto',
+	},
+	{
+	'text': 'IUPAC Names',  // button caption
+	'htmlClass': 'K-Res-Button-YesOk',  // show a OK icon
+	'hint': 'Copy IUPAC names to clipboard.',
+	'showText': true,   // display caption of button
+	'#execute': function(){ parseIupacName(); }  // event handler when executing the button
 	}
+	
+	
 ]);
 
 // Chem toolbar buttons
@@ -198,7 +208,146 @@ chemComposer.setAllowedObjModifierCategories([C.GENERAL, C.CHEM_STRUCTURE, C.GLY
 	//adjustSize();
 
 	//window.onresize = adjustSize;
+
+
+Kekule.Editor.IaControllerManager.register(Kekule.Editor.MolSpecifiedAtomIaController, Kekule.Editor.BaseEditor);
+
+// create related actions
+Kekule.Editor.ActionComposerMolSpecifiedAtomController_C = Kekule.Editor.createComposerIaControllerActionClass(
+	'Kekule.Editor.ActionComposerMolSpecifiedAtomController_C',
+	'C', //caption
+	'Carbon atom', //hint
+	'MolSpecifiedAtomIaController',   // the controller name
+	'MolSpecifiedAtomIaController-C',  // html class name for the button
+	{ 'specifiedAtomSymbol': 'C' }  // initial property values of controller
+);
+Kekule.Editor.ActionComposerMolSpecifiedAtomController_O = Kekule.Editor.createComposerIaControllerActionClass(
+	'Kekule.Editor.ActionComposerMolSpecifiedAtomController_O',
+	'O',
+	'Oxygen atom',
+	'MolSpecifiedAtomIaController',
+	'MolSpecifiedAtomIaController-O',
+	{ 'specifiedAtomSymbol': 'O' }
+);
+Kekule.Editor.ActionComposerMolSpecifiedAtomController_N = Kekule.Editor.createComposerIaControllerActionClass(
+	'Kekule.Editor.ActionComposerMolSpecifiedAtomController_N',
+	'O',
+	'Oxygen atom',
+	'MolSpecifiedAtomIaController',
+	'MolSpecifiedAtomIaController-N',
+	{ 'specifiedAtomSymbol': 'N' }
+);
+Kekule.Editor.ActionComposerMolSpecifiedAtomController_H = Kekule.Editor.createComposerIaControllerActionClass(
+	'Kekule.Editor.ActionComposerMolSpecifiedAtomController_H',
+	'H',
+	'Hydrogen atom',
+	'MolSpecifiedAtomIaController',
+	'MolSpecifiedAtomIaController-H',
+	{ 'specifiedAtomSymbol': 'H' }
+);
+
+
+
+	
+Kekule.ActionManager.registerNamedActionClass('specifiedAtomH', Kekule.Editor.ActionComposerMolSpecifiedAtomController_H, Kekule.Editor.ChemSpaceEditor);
+Kekule.ActionManager.registerNamedActionClass('specifiedAtomC', Kekule.Editor.ActionComposerMolSpecifiedAtomController_C, Kekule.Editor.ChemSpaceEditor);
+Kekule.ActionManager.registerNamedActionClass('specifiedAtomO', Kekule.Editor.ActionComposerMolSpecifiedAtomController_O, Kekule.Editor.ChemSpaceEditor);
+Kekule.ActionManager.registerNamedActionClass('specifiedAtomN', Kekule.Editor.ActionComposerMolSpecifiedAtomController_N, Kekule.Editor.ChemSpaceEditor);
 }
+
+
+
+/*
+function downloadCroppedImage() {
+    //const canvas = document.getElementById('projectionCanvas');
+    const canvas = document.querySelector('canvas')
+    const ctx = canvas.getContext('2d');
+    
+    // Define the cropping region
+    const cropX = 0; // X-coordinate of the cropping rectangle
+    const cropY = 0; // Y-coordinate of the cropping rectangle
+    const cropWidth = 300; // Width of the cropping rectangle
+    const cropHeight = 300; // Height of the cropping rectangle
+
+    // Create a temporary canvas to hold the cropped image
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = cropWidth;
+    tempCanvas.height = cropHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+
+    // Draw the cropped region onto the temporary canvas
+    tempCtx.drawImage(canvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+    // Convert the temporary canvas to an image
+    const dataURL = tempCanvas.toDataURL('image/png');
+
+    // Create a link element and trigger download
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'newman_projection.png';
+    link.click();
+}
+*/
+
+
+function exportCroppedImage() {
+    //const canvas = document.getElementById('projectionCanvas');
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let image = cropImageFromCanvas(ctx);
+    var seconds = new Date() / 1000;
+    download(image, seconds+".png", "image/png");
+    
+    //let imghtml = "<img "+"src='"+image+"'</img>";
+     
+     
+    //parent.tinymce.activeEditor.selection.setContent(imghtml);
+    //parent.tinymce.activeEditor.windowManager.close();
+    
+}
+
+
+
+function cropImageFromCanvas(ctx) {
+  var canvas = ctx.canvas, 
+    w = canvas.width, h = canvas.height,
+    pix = {x:[], y:[]},
+    imageData = ctx.getImageData(0,0,canvas.width,canvas.height),
+    x, y, index;
+    
+    
+  // Create a temporary canvas to hold the cropped image
+  const tempCanvas = document.createElement('canvas');
+  
+  for (y = 0; y < h; y++) {
+    for (x = 0; x < w; x++) {
+      index = (y * w + x) * 4;
+      if (imageData.data[index+3] > 0) {
+        pix.x.push(x);
+        pix.y.push(y);
+      } 
+    }
+  }
+  pix.x.sort(function(a,b){return a-b});
+  pix.y.sort(function(a,b){return a-b});
+  var n = pix.x.length-1;
+  
+  w = 1 + pix.x[n] - pix.x[0];
+  h = 1 + pix.y[n] - pix.y[0];
+  
+  tempCanvas.width = w+5;
+  tempCanvas.height = h+5;
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCtx.drawImage(canvas, pix.x[0]-5, pix.y[0]-5, w+5, h+5, 0, 0, w, h);
+  
+  return tempCanvas.toDataURL('image/png');      
+}
+
+
+
+
+
 function adjustSize()
 {
 	//window.onresize = null;
@@ -215,9 +364,73 @@ function adjustSize()
 	//window.onresize = adjustSize;
 }
 
+function copyToClipboard(text) {
+    var dummy = document.createElement("textarea");
+    // to avoid breaking orgain page when copying more words
+    // cant copy when adding below this code
+    // dummy.style.display = 'none'
+    document.body.appendChild(dummy);
+    //Be careful if you use texarea. setAttribute('value', value), which works with "input" does not work with "textarea". – Eduard
+    dummy.value = text;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+}
+
+
+function parseIupacName() {
+    
+    
+		//var mols = getComposer().exportObjs(Kekule.Molecule);
+		var mols = chemComposer.getChemObj();
+
+		
+		var smi = Kekule.IO.saveFormatData(mols, 'smi');
+
+				$.ajax({
+				        type: "POST",
+  					url: "parsename.php",
+  					data:{smiles: smi},
+  					success: function(response) { 
+                                          //console.log(response);
+                                           //document.execCommand("copy");
+                                           //parent.tinymce.activeEditor.execCommand("copy");
+       
+                                           copyToClipboard(response);
+                                           
+                                           alert("Copied to clipboard: \n" + response);cropI
+                                           
+                                           
+                                       }
+  					
+  					});
+    
+    
+}
+
+
+function handleCheckboxChange(checkbox) {
+    if (checkbox.checked) {
+        // Code to run when the checkbox is checked
+        console.log("Checkbox is checked, running first script");
+        chemComposer.renderConfigs.getMoleculeDisplayConfigs().setDefMoleculeDisplayType(2);
+        // Add your JavaScript logic here for when the checkbox is checked
+    } else {
+        // Code to run when the checkbox is unchecked
+        console.log("Checkbox is unchecked, running second script");
+        chemComposer.renderConfigs.getMoleculeDisplayConfigs().setDefMoleculeDisplayType(1);
+        // Add your JavaScript logic here for when the checkbox is unchecked
+    }
+}
+
+
+
+
+
 Kekule.X.domReady(init);
 </script>
 </p>
+Show implicit H's<input type="checkbox" id="showimplicitH" name="showimplicitH" onchange="handleCheckboxChange(this)">
 <div style="width: 800px; height: 600px;">
 <div id="chemComposer" style="resize: both; width: 100%; height: 600px;" data-widget="Kekule.Editor.Composer"></div>
 </div>
