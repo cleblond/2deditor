@@ -417,7 +417,19 @@ function exportCroppedImage() {
     
     let image = cropImageFromCanvas(ctx);
     var seconds = new Date() / 1000;
-    download(image, seconds+".png", "image/png");
+    
+    
+    const fileName = prompt("Please enter the file name", seconds+".png");
+    
+    
+    
+    if (!fileName) {
+        alert("No filename provided, download cancelled.");
+            return;
+    } else {
+        download(image, fileName + ".png", "image/png");
+    }
+    
     
     //let imghtml = "<img "+"src='"+image+"'</img>";
      

@@ -82,28 +82,20 @@ $OUTPUT->flashMessages();
 
 
 <div class="container-fluid">
+
     <div class="row">
+            <div class="col-md-3">
+                <h4>Display Mode</h4>
+                <label>
+                    <input type="radio" name="displayOption" value="skeletal" onclick="handleDisplayRadioButtonChange(this.value)" checked> Skeletal
+                </label>
+                <label>
+                    <input type="radio" name="displayOption" value="condensed" onclick="handleDisplayRadioButtonChange(this.value)"> Condensed
+                </label>
 
-        <div class="col-md-8">
-        
-
-            <div id="chemComposer" style="resize: both; width: 100%; height: 600px;" data-widget="Kekule.Editor.Composer"></div>
-
-            <div id="chemViewer" style="display: none;" data-widget="Kekule.ChemWidget.Viewer"></div>
-        
-        </div>
-        <div class="col-md-4">
-        
-            <h4>Display Mode</h4>
-            <label>
-                <input type="radio" name="displayOption" value="skeletal" onclick="handleDisplayRadioButtonChange(this.value)" checked> Skeletal
-            </label>
-            <label>
-                <input type="radio" name="displayOption" value="condensed" onclick="handleDisplayRadioButtonChange(this.value)"> Condensed
-            </label>
-        <br>
-
-
+            </div>
+            
+            <div class="col-md-3">
             <h4>Hydrogen Display Mode</h4>
             <label>
                 <input type="radio" name="hydrogenOption" value="smart" onclick="handleHRadioButtonChange(this.value)" checked> Smart
@@ -116,11 +108,26 @@ $OUTPUT->flashMessages();
             <label>
                 <input type="radio" name="hydrogenOption" value="off" onclick="handleHRadioButtonChange(this.value)"> Off
             </label>
+            
+            </div>
+    
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-8">
         
+
+            <div id="chemComposer" style="resize: both; width: 100%; height: 600px;" data-widget="Kekule.Editor.Composer"></div>
+
+            <div id="chemViewer" style="display: none;" data-widget="Kekule.ChemWidget.Viewer"></div>
         
-            <div style="display: none; width: 100%" id="3Ddiv">
+        </div>
+        <div class="col-md-4">
+        
+            <div style="display: none;" id="3Ddiv">
             <h4>3D Structure</h4>
-            <div id="chemViewer3D" data-widget="Kekule.ChemWidget.Viewer3D" data-predefined-setting="fullFunc" data-toolbar-evoke-modes="[1]" data-toolbar-pos="1" data-toolbar-margin-horizontal="0" data-toolbar-margin-vertical="0" data-resizable="true"></div>
+            <div id="chemViewer3D" style="width: 100%; height: 400px" data-widget="Kekule.ChemWidget.Viewer3D" data-predefined-setting="fullFunc" data-toolbar-evoke-modes="[1]" data-toolbar-pos="1" data-toolbar-margin-horizontal="0" data-toolbar-margin-vertical="0" data-resizable="true"></div>
             </div>
         
         </div>
