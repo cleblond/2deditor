@@ -264,6 +264,10 @@ Kekule.ActionManager.registerNamedActionClass('specifiedAtomN', Kekule.Editor.Ac
     chemComposer.getEditor().getIaController('MolBondIaController').setAutoSwitchBondOrder(true);       
 
     var N = Kekule.ChemWidget.ComponentWidgetNames;
+    
+    console.log(N);
+    
+    
     var C = Kekule.Editor.ObjModifier.Category;
 
 	chemComposer.setAllowedObjModifierCategories([C.GENERAL, C.CHEM_STRUCTURE, C.GLYPH, C.STYLE, C.MISC]);
@@ -316,10 +320,12 @@ chemComposer.setChemToolButtons([
 		]
 	},
 	N.erase,
+	
 	{
 		"name": N.molBond,
 		"attached": [
 			N.molBondSingle,
+			//N.molBondAromatic,
 			N.molBondDouble,
 			N.molBondTriple,
 			N.molBondWedgeUp,
@@ -333,6 +339,7 @@ chemComposer.setChemToolButtons([
 			N.molBondWedgeUpOrDown
 		]
 	},
+	
 	
 	{'name': 'Custom', 'actionClass': Kekule.Editor.ActionOnComposerAdv,
                 'text': 'Create', 'hint': 'Add atoms and bonds', 'id': 'btnMyCreate', 'htmlClass': 'MYBUTTON',
@@ -404,6 +411,32 @@ var toolButtons = chemComposer.getCommonToolButtons() || chemComposer.getDefault
 		btnGen = Kekule.Widget.getWidgetById('btnGen');
 		btnTerminate = Kekule.Widget.getWidgetById('btnTerminate');
 		btnTerminate.setEnabled(false);
+
+
+}
+
+
+function exportCroppedImageNew() {
+// create a hidden autosized viewer widget
+let viewer = new Kekule.ChemWidget.Viewer(document);
+viewer.appendToElem(document.body);
+viewer.getElement().style.visibility = 'hidden';
+viewer.setAutoSize(true);
+// load objects in viewer
+viewer.setChemObj(chemComposer.getChemObj());
+// export image
+let dataUri = viewer.exportToDataUri();
+
+const fileName = prompt("Please enter the file name", "my-image.png");
+    
+    
+    
+    if (!fileName) {
+        alert("No filename provided, download cancelled.");
+            return;
+    } else {
+        download(dataUri, fileName + ".png", "image/png");
+    }
 
 
 }
